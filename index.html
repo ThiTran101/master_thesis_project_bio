@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>From Natural Language to Underwater Manipulation</title>
+  <meta name="description" content="LLM-driven mission planning and adaptive task-priority control for autonomous underwater intervention.">
+  <meta property="og:title" content="From Natural Language to Underwater Manipulation">
+  <meta property="og:image" content="static/videos/hero_loop.jpg">
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.4/css/bulma.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+
+<nav class="toc" id="toc" aria-label="Table of contents">
+  <a href="#abstract"><span class="toc-label">Abstract</span><span class="toc-bar"></span></a>
+  <a href="#overview"><span class="toc-label">System Overview</span><span class="toc-bar"></span></a>
+  <a href="#setup"><span class="toc-label">Experimental Setup</span><span class="toc-bar"></span></a>
+  <a href="#simulation"><span class="toc-label">Stonefish Simulation</span><span class="toc-bar"></span></a>
+  <a href="#demo-video"><span class="toc-label">Wave-Tank Experiments</span><span class="toc-bar"></span></a>
+  <a href="#BibTeX"><span class="toc-label">BibTeX</span><span class="toc-bar"></span></a>
+</nav>
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="has-text-centered">
+        <h1 class="title is-1 publication-title">From Natural Language to Underwater Manipulation Through LLM-Driven Mission Planning and Adaptive Task-Priority Control</h1>
+
+        <div class="is-size-5 publication-authors">
+          <span class="author-block">Thi Tran<sup>1,2</sup>,</span>
+          <span class="author-block">Amir Vahidibejestani<sup>3</sup>,</span>
+          <span class="author-block">Michele Grimaldi<sup>3</sup>,</span>
+          <span class="author-block">Eleni Kelasidi<sup>2</sup>,</span>
+          <span class="author-block">Fausto Ferreira<sup>1</sup>,</span>
+          <span class="author-block">Ignacio Carlucho<sup>3</sup></span>
+        </div>
+
+        <div class="is-size-6 publication-authors affiliations">
+          <span class="author-block"><sup>1</sup>University of Zagreb, Croatia</span>
+          <span class="author-block"><sup>2</sup>Norwegian University of Science and Technology, Norway</span>
+          <span class="author-block"><sup>3</sup>Heriot-Watt University, UK</span>
+        </div>
+
+        <div class="publication-links">
+          <span class="link-block">
+            <a class="external-link button is-normal is-rounded is-dark" disabled title="Coming soon">
+              <span class="icon"><i class="fas fa-file-pdf"></i></span><span>Paper</span>
+            </a>
+          </span>
+          <span class="link-block">
+            <a class="external-link button is-normal is-rounded is-dark" disabled title="Coming soon">
+              <span class="icon"><i class="ai ai-arxiv"></i></span><span>arXiv</span>
+            </a>
+          </span>
+          <span class="link-block">
+            <a class="external-link button is-normal is-rounded is-dark" disabled title="Coming soon">
+              <span class="icon"><i class="fab fa-github"></i></span><span>Code</span>
+            </a>
+          </span>
+          <span class="link-block">
+            <a href="#demo-video" class="external-link button is-normal is-rounded is-dark">
+              <span class="icon"><i class="fab fa-youtube"></i></span><span>Video</span>
+            </a>
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Abstract -->
+<section class="section hero is-light" id="abstract">
+  <div class="container is-max-desktop">
+    <div class="columns is-centered has-text-centered">
+      <div class="column is-four-fifths">
+        <h2 class="title is-3">Abstract</h2>
+        <div class="content has-text-justified">
+          <p>
+            Autonomous underwater intervention requires robots that turn high-level mission intent into
+            physically safe manipulation without human teleoperation, adapting both the mission plan and the
+            way the controller executes it. Language-model planners can already adapt the mission plan at
+            runtime, but the controller that carries it out still keeps a task hierarchy, gains, and weights
+            fixed at design time. This paper presents a layered framework in which a large language model
+            generates and re-plans behavior trees and simultaneously configures the task-priority control
+            stack, including its active constraints, gains, joint weights, and damping, from perception
+            context. The framework is evaluated on touching, grasping, and valve-rotation tasks in simulation
+            and on a physical underwater vehicle-manipulator platform in a wave tank. A 50-scenario benchmark
+            of language models shows DeepSeek V3 leading at 84% behavior-tree validity, while the local models
+            Llama-3.1-8B and Qwen-2.5-7B reach 76% and 74% on a single RTX 3070 graphics card without cloud
+            access. An ablation over 47 simulation trials shows that re-planning and adaptive weighting
+            together raise task success from 71% to 90%. All 27 wave-tank trials succeeded with no parameter
+            re-tuning.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Figure 1 -->
+<section class="section" id="overview">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">System Overview</h2>
+    <figure class="paper-figure">
+      <img src="static/images/system_overview.png" alt="System overview of the proposed framework">
+      <figcaption>
+        <b>Figure 1.</b> In the LLM-based Planning Layer, the Orchestrator queries the LLM, conditioned on the
+        system prompt and node catalogue, to generate a behavior tree from the operator's natural-language
+        mission. In the Validation Layer, the tree is checked, reviewed by the operator, and run in the
+        Stonefish simulator before deployment. In the Execution Layer, the Perception and Intervention ROS2
+        modules run the validated tree on the robot, and robot feedback returns to the Orchestrator for
+        re-planning.
+      </figcaption>
+    </figure>
+  </div>
+</section>
+
+<!-- Figure 2 -->
+<section class="section" id="setup">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Experimental Setup</h2>
+    <div class="columns is-vcentered media-row">
+      <div class="column">
+        <img src="static/images/stonefish_scenario.jpg" alt="Stonefish simulation">
+      </div>
+      <div class="column">
+        <img src="static/images/tank_setup.jpg" alt="Wave tank setup">
+      </div>
+    </div>
+    <p class="figure-caption">
+      <b>Figure 2.</b> Left: the valve-turning scenario in the Stonefish simulator (47 trials).
+      Right: the physical underwater vehicle-manipulator system in the Ocean Systems Laboratory wave tank
+      at Heriot-Watt University (27 trials).
+    </p>
+  </div>
+</section>
+
+<!-- Simulation results -->
+<section class="section hero is-light" id="simulation">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Stonefish Simulation</h2>
+
+    <div class="publication-video">
+      <video autoplay muted loop playsinline preload="metadata" poster="static/videos/perception_stonefish.jpg">
+        <source src="static/videos/perception_stonefish.mp4" type="video/mp4">
+      </video>
+    </div>
+    <p class="figure-caption centered">
+      Valve rotation in Stonefish: the valve pose is estimated from the stereo point cloud (RViz, centre),
+      and the arm grasps the valve and turns it.
+    </p>
+
+    <div class="more-videos">
+      <div class="publication-video">
+        <video autoplay muted loop playsinline preload="metadata" poster="static/videos/obstacle_avoidance_sim.jpg">
+          <source src="static/videos/obstacle_avoidance_sim.mp4" type="video/mp4">
+        </video>
+      </div>
+      <p class="figure-caption centered">
+        Obstacle avoidance: the end-effector is deflected around two obstacles on its way to the goal,
+        with the live trajectory shown on the right.
+      </p>
+    </div>
+
+    <div class="more-videos">
+      <div class="publication-video">
+        <video autoplay muted loop playsinline preload="metadata" poster="static/videos/joint_limit_sim.jpg">
+          <source src="static/videos/joint_limit_sim.mp4" type="video/mp4">
+        </video>
+      </div>
+      <p class="figure-caption centered">
+        Joint-limit avoidance during valve rotation: the task activates as the joint nears its limit and
+        pushes it back into the safe range.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- Demo video -->
+<section class="section" id="demo-video">
+  <div class="container is-max-desktop">
+    <h2 class="title is-3 has-text-centered">Wave-Tank Experiments</h2>
+    <div class="publication-video">
+      <video controls preload="metadata" playsinline poster="static/videos/full_run_wave_tank.jpg">
+        <source src="static/videos/full_run_wave_tank.mp4" type="video/mp4">
+      </video>
+    </div>
+    <p class="figure-caption">
+      Full run in the wave tank: the operator types the mission, the LLM generates the behavior tree, and the
+      robot detects the valve, approaches it, and turns it.
+    </p>
+
+    <div class="more-videos">
+      <div class="publication-video video-small">
+        <video autoplay muted loop playsinline preload="metadata" poster="static/videos/real_intervention.jpg">
+          <source src="static/videos/real_intervention.mp4" type="video/mp4">
+        </video>
+      </div>
+      <p class="figure-caption centered">External view of the intervention in the wave tank: the arm reaches the valve and turns it.</p>
+    </div>
+
+    <div class="more-videos">
+      <div class="publication-video video-small">
+        <video autoplay muted loop playsinline preload="metadata" poster="static/videos/valve_detection_tank.jpg">
+          <source src="static/videos/valve_detection_tank.mp4" type="video/mp4">
+        </video>
+      </div>
+      <p class="figure-caption centered">Valve detection and segmentation in the wave tank.</p>
+    </div>
+  </div>
+</section>
+
+<!-- BibTeX -->
+<section class="section" id="BibTeX">
+  <div class="container is-max-desktop content">
+    <h2 class="title">BibTeX</h2>
+    <pre><code>@article{tran2026natural,
+  author  = {Tran, Thi and Vahidibejestani, Amir and Grimaldi, Michele and
+             Kelasidi, Eleni and Ferreira, Fausto and Carlucho, Ignacio},
+  title   = {From Natural Language to Underwater Manipulation Through
+             {LLM}-Driven Mission Planning and Adaptive Task-Priority Control},
+  journal = {IEEE Journal of Oceanic Engineering},
+  year    = {2026},
+  note    = {Under review}
+}</code></pre>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content has-text-centered">
+          <p>
+            This page was built using the
+            <a href="https://github.com/eliahuhorwitz/Academic-project-page-template" target="_blank">Academic Project Page Template</a>,
+            which was adopted from the <a href="https://nerfies.github.io" target="_blank">Nerfies</a> project page.
+            This website is licensed under a
+            <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/" target="_blank">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script src="static/js/toc.js"></script>
+
+</body>
+</html>
